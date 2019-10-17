@@ -151,9 +151,9 @@ class AwardXML(object):
                 'email': None,
             })
 
-    def write_json(fpath):
+    def write_json(self, fpath):
         with open(fpath, 'w') as f:
-            json.dump(self, fpath)
+            json.dump(self, f)
 
 
 class NoAwardsFound(Exception):
