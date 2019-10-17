@@ -2,7 +2,7 @@
 Mixins for database tables to inherit from.
 """
 import re
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative import declared_attr
 
 
 class BasicMixin(object):
