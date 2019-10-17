@@ -9,9 +9,19 @@ class BasicMixin(object):
 
     @declared_attr
     def __tablename__(cls):
-        """Convert "CamelCase" class names to "camel_case" table names."""
-        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', cls.__name__)
-        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+        """
+        Convert "CamelCase" class names to "camel_case" table names.
+        """
+        s1 = re.sub(
+            '(.)([A-Z][a-z]+)',
+            r'\1_\2',
+            cls.__name__,
+        )
+        return re.sub(
+            '([a-z0-9])([A-Z])',
+            r'\1_\2',
+            s1,
+        ).lower()
 
     def __repr__(self):
         def reprs():
@@ -62,7 +72,12 @@ class UniqueMixin(BasicMixin):
 
     @classmethod
     def as_unique(cls, session, *arg, **kw):
-        return _unique(session, cls,
-                       cls.unique_hash,
-                       cls.unique_filter,
-                       cls, arg, kw)
+        return _unique(
+            session,
+            cls,
+            cls.unique_hash,
+            cls.unique_filter,
+            cls,
+            arg,
+            kw
+        )
