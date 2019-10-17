@@ -1,8 +1,4 @@
-import os
 import sys
-
-import nameparser
-
 import db
 from awards import AwardExplorer
 
