@@ -4,7 +4,7 @@ import datetime
 import pickle
 from difflib import SequenceMatcher
 
-import ujson as json
+import json
 
 from bs4 import BeautifulSoup as Soup
 
