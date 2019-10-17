@@ -6,30 +6,30 @@ from util.num_cpus import available_cpu_count
 
 
 def check_orgs(awards, year):
-    print 'Checking year: {}'.format(year)
+    print(f'Checking year: {year}')
     for soup in awards[year]:
         if len(soup('Organization')) > 1:
             with open('multiple_orgs.txt', 'a') as f:
-                f.write('{}\n'.format(soup.find('AwardID').text))
+                f.write(f'{soup.find("AwardID").text}\n')
         if len(soup('LongName')) > 2:
             if len(soup('Directorate')) > 1:
                 with open('multiple_dirs.txt', 'a') as f:
-                    f.write('{}\n'.format(soup.find('AwardID').text))
+                    f.write(f'{soup.find("AwardID").text}\n')
             if len(soup('Division')) > 1:
                 with open('multiple_divs.txt', 'a') as f:
-                    f.write('{}\n'.format(soup.find('AwardID').text))
+                    f.write(f'{soup.find("AwardID").text}\n')
 
 
 if __name__ == "__main__":
     try:
         zipdir = sys.argv[1]
     except IndexError:
-        print '{} <zipdir>'.format(sys.argv[0])
+        print(f'{sys.argv[0]} <zipdir>')
         sys.exit(1)
 
     awards = Awards(zipdir)
     years = awards.years()
-    print 'Checking {} years.'.format(len(years))
+    print(f'Checking {len(years)} years.')
     cpus = available_cpu_count()
     pool = mp.Pool(processes=cpus)
     for year in years:
