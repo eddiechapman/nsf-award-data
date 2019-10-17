@@ -30,7 +30,7 @@ class BasicMixin(object):
 
         def format(seq):
             for key, value in seq:
-                yield '{}="{}"'.format(key, value)
+                yield f'{key}="{value}"'
 
         args = '({})'.format(', '.join(format(reprs())))
         classy = type(self).__name__
