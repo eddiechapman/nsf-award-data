@@ -1,7 +1,7 @@
 import os
 import zipfile
 import datetime
-import cPickle as pickle
+import pickle
 from difflib import SequenceMatcher
 
 import ujson as json
