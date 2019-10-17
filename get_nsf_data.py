@@ -14,7 +14,7 @@ import argparse
 import requests
 
 
-NSF_AWARDS_URL = 'http://www.nsf.gov/awardsearch/download'
+NSF_AWARDS_URL = 'https://www.nsf.gov/awardsearch/download'
 REQUIRED_PARAMS = ('DownloadFileName', 'All')
 
 
@@ -43,27 +43,38 @@ def request_data(year, dirpath='./'):
         f.write(r.content)
         logging.info('data for {} written to {}'.format(year, outfile))
 
+
 def request_all(*args):
     """Request data for all years."""
     start = '1960'
-    end = '2014'  # TODO: get based on current date
+    end = '2019'  # TODO: get based on current date
     for year in range(int(start), int(end) + 1):
         request_data(str(year), *args)
 
 
 def setup_parser():
     parser = argparse.ArgumentParser(
-        description='Get raw zipped XML NSF award data from nsf.gov.')
-
+        description='Get raw zipped XML NSF award data from nsf.gov.'
+    )
     parser.add_argument(
-        'years', action='store', nargs='*',
-        help='pass one or more years to restrict requests to those years')
+        'years', 
+        action='store', 
+        nargs='*',
+        help='pass one or more years to restrict requests to those years',
+    )
     parser.add_argument(
-        '-o', '--outfile', action='store', default='./',
-        help='write to a particular file, rather than the curdir')
+        '-o', 
+        '--outfile', 
+        action='store', 
+        default='./',
+        help='write to a particular file, rather than the curdir',
+    )
     parser.add_argument(
-        '-v', '--verbose', action='store_true',
-        help='print verbose output to console')
+        '-v', 
+        '--verbose', 
+        action='store_true',
+        help='print verbose output to console',
+    )
 
     return parser
 
