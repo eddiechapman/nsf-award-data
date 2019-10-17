@@ -173,7 +173,7 @@ def parse_award(award, session):
 if __name__ == "__main__":
     logging.basicConfig(
         filename='parse.log',
-        level=logging.INFO,
+        level=logging.ERROR,
         format='%(levelname)s:%(asctime)s:%(message)s'
     )
     logging.info('Parsing award data.')
@@ -185,7 +185,7 @@ if __name__ == "__main__":
         print(f'{sys.argv[0]} <zipdir>')
         sys.exit(1)
 
-    logging.info(f'Award years: {", ".join(str(sorted(awards.years())))}')
+    logging.info(f'Award years: {sorted(awards.years())}')
     
     for year in sorted(awards.years()):
         awardgen = awards[year]
