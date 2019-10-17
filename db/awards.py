@@ -55,7 +55,7 @@ def closest_country_code(country):
         if similarity > top[0]:
             top = (similarity, name)
     
-    return COUNTRIES[top[1]]
+    return COUNTRIES.get(top[1])
 
 
 class AwardXML(object):
