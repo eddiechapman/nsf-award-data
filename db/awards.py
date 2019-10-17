@@ -5,7 +5,6 @@ import cPickle as pickle
 from difflib import SequenceMatcher
 
 import ujson as json
-import nameparser
 
 from bs4 import BeautifulSoup as Soup
 
