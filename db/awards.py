@@ -20,41 +20,54 @@ ROLES = {
     'principal investigator': 'pi',
     'co-principal investigator': 'copi',
     'former principal investigator': 'fpi',
-    'former co-principal investigator': 'fcopi'
+    'former co-principal investigator': 'fcopi',
 }
 
 
 def parse_date(date):
-    """Parse data from dd/mm/yyyy format to Python datetime object."""
+    """
+    Parse data from dd/mm/yyyy format to Python datetime object.
+    """
     month, day, year = [int(part) for part in date.split('/')]
+    
     return datetime.date(year, month, day)
 
 
 def normalize_street(street_address):
-    """Sub common street name elements for abbreviations and capitalize."""
+    """
+    Sub common street name elements for abbreviations and capitalize.
+    """
     caps = street_address.upper()
     stripped = caps.strip('.').strip()
     for key in SUBS:
         stripped = stripped.replace(key, SUBS[key])
+    
     return stripped
 
 
 def closest_country_code(country):
-    """Get the country code for the country name most similar to the given."""
+    """
+    Get the country code for the country name most similar to the given.
+    """
     caps = country.upper()
     top = (0, '')
     for name in COUNTRIES:
         similarity = SequenceMatcher(None, caps, name).ratio()
         if similarity > top[0]:
             top = (similarity, name)
+    
     return COUNTRIES[top[1]]
 
 
 class AwardXML(object):
-    """Wrapper for award XML soup, to make data extraction simple."""
+    """
+    Wrapper for award XML soup, to make data extraction simple.
+    """
 
     def __init__(self, soup):
-        """Extract data from XML soup and discard soup."""
+        """
+        Extract data from XML soup and discard soup.
+        """
         find_text = lambda key: soup.find(key).text
         self.title = find_text('AwardTitle')
         self.id = find_text('AwardID')
@@ -126,7 +139,7 @@ class AwardXML(object):
                 'name': fullname,
                 'role': role,
                 'start': start,
-                'end': end
+                'end': end,
             })
 
         # program officers
@@ -136,7 +149,7 @@ class AwardXML(object):
                 'role': 'po',
                 'start': self.effective,
                 'end': self.expires,
-                'email': None
+                'email': None,
             })
 
     def write_json(fpath):
@@ -145,24 +158,30 @@ class AwardXML(object):
 
 
 class NoAwardsFound(Exception):
-    """Raise when no awards are found at a given path."""
+    """
+    Raise when no awards are found at a given path.
+    """
     def __init__(self, path):
-        self.msg = "no awards found at path: {}".format(path)
+        self.msg = f'no awards found at path: {path}'
+
     def __repr__(self):
         return self.msg
+
     def __str__(self):
         return self.msg
 
 
 class AwardExplorer(object):
-    """Wrapper class that iterates over XML award data, yielding XML Soup."""
-
+    """
+    Wrapper class that iterates over XML award data, yielding XML Soup.
+    """
     def __init__(self, dirpath=None):
-        """Set up the file paths to the data using the given directory."""
+        """
+        Set up the file paths to the data using the given directory.
+        """
         self.zipdir = dirpath if dirpath is not None else os.getcwd()
         self.zipfiles = [f for f in os.listdir(self.zipdir)
                          if f.endswith('.zip')]
-
         if not self.zipfiles:
             raise NoAwardsFound(self.zipdir)
 
@@ -172,10 +191,9 @@ class AwardExplorer(object):
                 yield Soup(archive.read(filepath), 'xml')
 
     def __getitem__(self, year):
-        filename = '{}.zip'.format(year)
+        filename = f'{year}.zip'
         if filename not in self.zipfiles:
-            raise KeyError('{} not present in {}'.format(
-                filename, self.zipdir))
+            raise KeyError(f'{filename} not present in {self.zipdir}')
 
         zipfile_path = os.path.join(self.zipdir, filename)
         return (AwardXML(soup) for soup in self._iterarchive(zipfile_path))
