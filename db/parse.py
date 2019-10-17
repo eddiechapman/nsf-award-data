@@ -24,7 +24,9 @@ def parse_award(award, session):
     :param session: The active session object for the DB.
 
     """
-    new_award = db.Award.as_unique(session,
+    new_award = db.Award.as_unique(
+        session,
+        
         # general info
         code=award.id,
         title=award.title,
@@ -53,8 +55,14 @@ def parse_award(award, session):
     # no instances of multiple <Organization>, <Directorate>, or <Division>
     # tags found.
 
-    directorate = db.Directorate.as_unique(session, award.directorate)
-    division = db.Division.as_unique(session, award.division)
+    directorate = db.Directorate.as_unique(
+        session,
+        award.directorate,
+    )
+    division = db.Division.as_unique(
+        session,
+        award.division,
+    )
     directorate.divisions.append(division)
     session.add(directorate)
 
@@ -62,7 +70,11 @@ def parse_award(award, session):
 
     related_pgms = []
     for pgmref in award.pgm_refs:
-        ref = db.Program.as_unique(session, pgmref['code'], pgmref['name'])
+        ref = db.Program.as_unique(
+            session,
+            pgmref['code'],
+            pgmref['name'],
+        )
         related_pgms.append(ref)
         session.add(ref)
     session.flush()
@@ -70,7 +82,11 @@ def parse_award(award, session):
     pgm_elements = []
     for pgm in award.pgm_elements:
         pgm = db.Program.as_unique(
-            session, pgm['code'], pgm['name'], division.id)
+            session,
+            pgm['code'],
+            pgm['name'],
+            division.id,
+        )
         session.add(pgm)
         session.flush()
 
@@ -78,12 +94,20 @@ def parse_award(award, session):
         for related_pgm in related_pgms:
             if related_pgm.id != pgm.id:
                 session.add(
-                    db.RelatedPrograms.as_unique(session, pgm.id,
-                        related_pgm.id)
+                    db.RelatedPrograms.as_unique(
+                        session,
+                        pgm.id,
+                        related_pgm.id,
                     )
-
+                )
         # the pgm elements actually fund the award
-        session.add(db.Funding.as_unique(session, pgm, new_award))
+        session.add(
+            db.Funding.as_unique(
+                session,
+                pgm,
+                new_award,
+            )
+        )
 
     session.flush()
 
@@ -93,7 +117,7 @@ def parse_award(award, session):
         institution = db.Institution.as_unique(
             session,
             name=inst['name'],
-            phone=inst['phone']
+            phone=inst['phone'],
         )
         institution.address = db.Address.as_unique(
             session,
@@ -101,7 +125,7 @@ def parse_award(award, session):
             city=inst['city'],
             state=inst['state'],
             country=inst['country'],
-            zipcode=inst['zipcode']
+            zipcode=inst['zipcode'],
         )
         session.add(institution)
         institutions.append(institution)
@@ -114,7 +138,7 @@ def parse_award(award, session):
         new_person = db.Person.from_fullname(
             session,
             name=person['name'],
-            email=person['email']
+            email=person['email'],
         )
         people.append(new_person)
         session.add(new_person)
@@ -128,7 +152,8 @@ def parse_award(award, session):
                 person=new_person,
                 role=person['role'],
                 start=person['start'],
-                end=person['end'])
+                end=person['end'],
+            )
         )
 
     session.flush()
@@ -137,7 +162,11 @@ def parse_award(award, session):
         for institution in institutions:
             session.add(
                 db.Affiliation.as_unique(
-                    session, person, institution, new_award)
+                    session,
+                    person,
+                    institution,
+                    new_award,
+                )
             )
 
     session.flush()
@@ -148,7 +177,7 @@ if __name__ == "__main__":
     try:
         awards = AwardExplorer(sys.argv[1])
     except IndexError:
-        print '{} <zipdir>'.format(sys.argv[0])
+        print(f'{sys.argv[0]} <zipdir>')
         sys.exit(1)
 
     awardgen = awards[1990]
@@ -157,13 +186,13 @@ if __name__ == "__main__":
     try:
         for award in awardgen:
             parse_award(award, session)
-    except:
+    except Exception:
         session.rollback()
-        print 'ROLLBACK'
+        print('ROLLBACK')
         raise
 
     try:
         session.commit()
-    except:
+    except Exception:
         session.rollback()
-        print 'ROLLBACK'
+        print('ROLLBACK')
