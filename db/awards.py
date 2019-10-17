@@ -9,10 +9,10 @@ import json
 from bs4 import BeautifulSoup as Soup
 
 
-with open('../data/address-abbrevs.pickle', 'r') as f:
+with open('../data/address-abbrevs.pickle', 'rb') as f:
     SUBS = pickle.load(f)
 
-with open('../data/country-codes.pickle', 'r') as f:
+with open('../data/country-codes.pickle', 'rb') as f:
     COUNTRIES = pickle.load(f)
 
 ROLES = {
