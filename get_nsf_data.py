@@ -30,18 +30,18 @@ def request_data(year, dirpath='./'):
 
     """
     params = {'DownloadFileName': year, 'All': 'true'}
-    logging.info('requesting award data for year: {}'.format(year))
+    logging.info(f'requesting award data for year: {year}')
     r = requests.post(NSF_AWARDS_URL, params)
 
     # will raise HTTP error if one occured
     r.raise_for_status()
 
     # write results to zip file in designated directory
-    fname = '{}.zip'.format(year)
+    fname = f'{year}.zip'
     outfile = os.path.join(os.path.abspath(dirpath), fname)
     with open(outfile, 'wb') as f:
         f.write(r.content)
-        logging.info('data for {} written to {}'.format(year, outfile))
+        logging.info(f'data for {year} written to {outfile}')
 
 
 def request_all(*args):
@@ -57,21 +57,21 @@ def setup_parser():
         description='Get raw zipped XML NSF award data from nsf.gov.'
     )
     parser.add_argument(
-        'years', 
-        action='store', 
+        'years',
+        action='store',
         nargs='*',
         help='pass one or more years to restrict requests to those years',
     )
     parser.add_argument(
-        '-o', 
-        '--outfile', 
-        action='store', 
+        '-o',
+        '--outfile',
+        action='store',
         default='./',
         help='write to a particular file, rather than the curdir',
     )
     parser.add_argument(
-        '-v', 
-        '--verbose', 
+        '-v',
+        '--verbose',
         action='store_true',
         help='print verbose output to console',
     )
