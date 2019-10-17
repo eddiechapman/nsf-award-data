@@ -176,7 +176,7 @@ if __name__ == "__main__":
         print(f'{sys.argv[0]} <zipdir>')
         sys.exit(1)
 
-    awardgen = awards[1990]
+    awardgen = iter(awards)
     session = db.Session()
 
     try:
