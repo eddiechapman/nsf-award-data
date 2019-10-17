@@ -176,19 +176,20 @@ if __name__ == "__main__":
         print(f'{sys.argv[0]} <zipdir>')
         sys.exit(1)
 
-    awardgen = iter(awards)
-    session = db.Session()
+    for year in awards.years:
+        awardgen = awards[year]
+        session = db.Session()
 
-    try:
-        for award in awardgen:
-            parse_award(award, session)
-    except Exception:
-        session.rollback()
-        print('ROLLBACK')
-        raise
+        try:
+            for award in awardgen:
+                parse_award(award, session)
+        except Exception:
+            session.rollback()
+            print('ROLLBACK')
+            raise
 
-    try:
-        session.commit()
-    except Exception:
-        session.rollback()
-        print('ROLLBACK')
+        try:
+            session.commit()
+        except Exception:
+            session.rollback()
+            print('ROLLBACK')
