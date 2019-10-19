@@ -9,37 +9,24 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import (
-    Column, String, Text, Integer, Enum, Date,
-    CHAR, FLOAT,
-    ForeignKey, CheckConstraint, UniqueConstraint
+    Column, String, Text, Integer, Enum, Date, CHAR, FLOAT, ForeignKey, 
+    CheckConstraint, UniqueConstraint
 )
 
 from mixins import BasicMixin, UniqueMixin
 
 
-engine = sa.create_engine('sqlite:///nsf-award-data.db', echo=True)
+engine = sa.create_engine('sqlite:///nsf-award-data.db')
 session_factory = saorm.sessionmaker(bind=engine)
 Session = saorm.scoped_session(session_factory)
 Base = declarative_base()
 
 
 class Directorate(UniqueMixin, Base):
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
-    name = Column(
-        String(80),
-        nullable=False,
-    )
-    code = Column(
-        CHAR(4),
-        unique=True,
-    )
-    phone = Column(
-        String(15),
-        unique=True,
-    )
+    id = Column(Integer, primary_key=True)
+    name = Column(String(80), nullable=False)
+    code = Column(CHAR(4), unique=True)
+    phone = Column(String(15), unique=True)
     divisions = saorm.relationship(
         'Division',
         backref='directorate',
@@ -62,22 +49,10 @@ class Directorate(UniqueMixin, Base):
 
 
 class Division(UniqueMixin, Base):
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
-    name = Column(
-        String(80),
-        nullable=False
-    )
-    code = Column(
-        CHAR(4),
-        unique=True,
-    )
-    phone = Column(
-        String(15),
-        unique=True,
-    )
+    id = Column(Integer, primary_key=True)
+    name = Column(String(80), nullable=False)
+    code = Column(CHAR(4), unique=True)
+    phone = Column(String(15), unique=True)
     dir_id = Column(
         Integer,
         ForeignKey('directorate.id', ondelete='CASCADE'),
@@ -106,20 +81,10 @@ class Division(UniqueMixin, Base):
 
 
 class Program(UniqueMixin, Base):
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
-    code = Column(
-        CHAR(4),
-        unique=True,
-        nullable=False,
-    )
+    id = Column(Integer, primary_key=True)
+    code = Column(CHAR(4), unique=True, nullable=False)
     name = Column(String(80))
-    div_id = Column(
-        CHAR(4),
-        ForeignKey('division.id', ondelete='CASCADE'),
-    )
+    div_id = Column(CHAR(4), ForeignKey('division.id', ondelete='CASCADE'))
 
     related_programs = association_proxy(
         '_related_programs',
@@ -196,15 +161,8 @@ class RelatedPrograms(UniqueMixin, Base):
 
 
 class Award(UniqueMixin, Base):
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
-    code = Column(
-        CHAR(7),
-        nullable=False,
-        unique=True,
-    )
+    id = Column(Integer, primary_key=True)
+    code = Column(CHAR(7), nullable=False, unique=True,)
     title = Column(String(100))
     abstract = Column(Text)
     effective = Column(Date)
@@ -279,14 +237,8 @@ class Funding(UniqueMixin, Base):
 
 
 class Publication(BasicMixin, Base):
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
-    title = Column(
-        String(255),
-        nullable=False,
-    )
+    id = Column(Integer, primary_key=True)
+    title = Column(String(255), nullable=False)
     abstract = Column(Text)
     journal = Column(String(255))
     volume = Column(String(10))
@@ -300,55 +252,22 @@ class Publication(BasicMixin, Base):
 
 
 class State(BasicMixin, Base):
-    abbr = Column(
-        CHAR(2),
-        primary_key=True,
-    )
-    name = Column(
-        String(14),
-        nullable=False,
-        unique=True,
-    )
+    abbr = Column(CHAR(2), primary_key=True)
+    name = Column(String(14), nullable=False, unique=True)
 
 
 class Country(BasicMixin, Base):
-    alpha2 = Column(
-        CHAR(2),
-        primary_key=True,
-    )
-    name = Column(
-        String(100),
-        nullable=False,
-    )
+    alpha2 = Column(CHAR(2), primary_key=True)
+    name = Column(String(100), nullable=False)
 
 
 class Address(UniqueMixin, Base):
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
-    street = Column(
-        String(50),
-        nullable=False,
-    )
-    city = Column(
-        String(50),
-        nullable=False,
-    )
-    state = Column(
-        CHAR(2),
-        ForeignKey('state.abbr'),
-        nullable=False,
-    )
-    country = Column(
-        CHAR(2),
-        ForeignKey('country.alpha2'),
-        nullable=False,
-    )
-    zipcode = Column(
-        String(10),
-        nullable=False,
-    )
+    id = Column(Integer, primary_key=True)
+    street = Column(String(50), nullable=False)
+    city = Column(String(50), nullable=False)
+    state = Column(CHAR(2), ForeignKey('state.abbr'), nullable=False)
+    country = Column(CHAR(2), ForeignKey('country.alpha2'), nullable=False)
+    zipcode = Column(String(10), nullable=False)
     lat = Column(FLOAT)
     lon = Column(FLOAT)
 
@@ -374,26 +293,11 @@ class Address(UniqueMixin, Base):
 
 
 class Institution(UniqueMixin, Base):
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
-    name = Column(
-        String(100),
-        nullable=False,
-    )
-    phone = Column(
-        String(15),
-        unique=True,
-    )
-    address_id = Column(
-        Integer,
-        ForeignKey('address.id', ondelete='SET NULL'),
-    )
-    address = saorm.relationship(
-        'Address',
-        uselist=False,
-    )
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    phone = Column(String(15), unique=True)
+    address_id = Column(Integer, ForeignKey('address.id', ondelete='SET NULL'))
+    address = saorm.relationship('Address', uselist=False)
 
     people = association_proxy('_people', 'person')
 
@@ -407,26 +311,14 @@ class Institution(UniqueMixin, Base):
 
 
 class Person(UniqueMixin, Base):
-    id = Column(
-        Integer,
-        primary_key=True,
-    )
-    fname = Column(
-        String(50),
-        nullable=False,
-    )
-    lname = Column(
-        String(50),
-        nullable=False,
-    )
+    id = Column(Integer, primary_key=True)
+    fname = Column(String(50), nullable=False)
+    lname = Column(String(50), nullable=False)
     mname = Column(String(50))
     nickname = Column(String(20))
     title = Column(String(10))
     suffix = Column(String(10))
-    email = Column(
-        String(100),
-        unique=True,
-    )
+    email = Column(String(100), unique=True)
 
     publications = association_proxy('_publications', 'publication')
     institutions = association_proxy('affiliations', 'institution')
