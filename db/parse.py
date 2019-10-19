@@ -23,7 +23,7 @@ def parse_award(award, session):
     """
     new_award = db.Award.as_unique(
         session,
-        
+
         # general info
         code=award.id,
         title=award.title,
@@ -168,49 +168,3 @@ def parse_award(award, session):
 
     session.flush()
     return session
-
-
-if __name__ == "__main__":
-    logging.basicConfig(
-        filename='parse.log',
-        level=logging.ERROR,
-        format='%(levelname)s:%(asctime)s:%(message)s'
-    )
-    logging.info('Parsing award data.')
-
-    try:
-        awards = AwardExplorer(sys.argv[1])
-    except IndexError:
-        logging.error(f'No zip directory argument specified.')
-        print(f'{sys.argv[0]} <zipdir>')
-        sys.exit(1)
-
-    logging.info(f'Award years: {sorted(awards.years())}')
-    
-    for year in sorted(awards.years()):
-        awardgen = awards[year]
-        session = db.Session()
-
-        try:
-            logging.info(f'Parsing {year}')
-            for award in awardgen:
-                parse_award(award, session)
-        except Exception as e:
-            session.rollback()
-            print('ROLLBACK')
-            logging.error(f'ROLLBACK - Error in year {year}. {e}')
-            raise
-        else:
-            logging.info(f'Parsing complete for year {year}')
-        
-        try:
-            logging.info(f'Commiting parsed awards for year {year}')
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            logging.error(f'ROLLBACK - Error in year {year}. {e}')
-            print('ROLLBACK')
-        else:
-            logging.info(f'Session successfully commited for year {year}')
-
-        
