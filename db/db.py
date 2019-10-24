@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import (
-    Column, String, Text, Integer, Enum, Date, CHAR, FLOAT, ForeignKey, 
+    Column, String, Text, Integer, Enum, Date, CHAR, FLOAT, ForeignKey,
     CheckConstraint, UniqueConstraint
 )
 
