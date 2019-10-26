@@ -35,7 +35,7 @@ def main(args):
 
     logging.debug('Querying the Funding table by program ID.')
     query = session.query(db.Funding).filter(db.Funding.pgm_id.in_(programs))
-    logging.debug(f'Found {query.count()}')
+    logging.info(f'Found {query.count()}')
 
     logging.debug(f'Opening the output file: {args.output}')
     with open(args.output, 'w') as f:
