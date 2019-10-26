@@ -3,7 +3,6 @@ Retrieve the IDs for all awards associated with a given directorate.
 """
 import argparse
 import csv
-import json
 import logging
 import db
 
@@ -16,32 +15,62 @@ def main(args):
     )
     logging.info('Beginning program.')
 
-    logging.debug('Opening org-hierarchy.json')
-    with open('../datainfo/org-hierarchy.json', 'r') as f:
-        org_hierarchy = json.load(f)
-        directorate = org_hierarchy.get(args.directorate)
-        if not directorate:
-            logging.error(f'Unknown directorate: {args.directorate}.')
-            raise SystemExit
+    DIRECTORATE = args.directorate.upper()
 
-    logging.debug('Getting programs for the directorate')
-    programs = []
-    for division in directorate.values():
-        programs.extend(pgm for pgm in division if pgm)
-    logging.info(f'Number of programs found: {len(programs)}')
-
-    logging.debug('Initializing database session.')
+    logging.info('Initializing database session.')
     session = db.Session()
 
-    logging.debug('Querying the Funding table by program ID.')
-    query = session.query(db.Funding).filter(db.Funding.pgm_id.in_(programs))
-    logging.info(f'Found {query.count()}')
+    logging.info(f'Getting the ID for the directorate: {DIRECTORATE}')
+    q = session.query(db.Directorate).filter(
+        db.Directorate.name == DIRECTORATE
+    )
+    if q.count() == 0:
+        q = session.query(db.Directorate).all()
+        dir_list = '\n'.join([f'\t{d.id}\t{d.name}' for d in q])
+        logging.error(f'Directorate not found in DB: {DIRECTORATE}')
+        logging.error(
+            'Try using one of the following IDs or names:\n' + str(dir_list)
+        )
+        raise SystemExit
+    dir_id = q.first().id
+    logging.info(f'Found directorate ID: {dir_id}.')
 
-    logging.debug(f'Opening the output file: {args.output}')
+    logging.info('Getting division IDs for the directorate')
+    q = session.query(db.Division).filter(db.Division.dir_id == dir_id)
+    logging.info(f'Divisions in query: {q.count()}')
+    divs = {div.id: div.code for div in q.all()}
+
+    logging.info('Finding the program IDs for the divisions.')
+    q = session.query(db.Program).filter(db.Program.div_id.in_(divs.keys()))
+    logging.debug(f'Programs in query: {q.count()}')
+    pgms = {pgm.id: pgm.code for pgm in q.all()}
+
+    logging.info('Getting the IDs of awards funded by the programs.')
+    q = session.query(db.Funding).filter(db.Funding.pgm_id.in_(pgms.keys()))
+    logging.debug(f'Fundings in query: {q.count()}')
+    funded = {fund.award_id: fund.pgm_id for fund in q.all()}
+
+    logging.info('Getting the award info for funded awards.')
+    q = session.query(db.Award).filter(db.Award.id.in_(funded.keys()))
+    logging.debug(f'Awards in query: {q.count()}')
+    awards = []
+    for award in q.all():
+        awards.append({
+            'id': award.id,
+            'code': award.code,
+            'title': award.title,
+            'abstract': award.abstract,
+            'effective': award.effective,
+            'program': pgms[funded[award.id]]
+        })
+    logging.info(f'Collected info on {len(awards)} awards.')
+
+    logging.info(f'Opening the output file: {args.output}')
     with open(args.output, 'w') as f:
-        writer = csv.writer(f)
-        for row in query.all():
-            writer.writerow((row.pgm_id, row.award_id))
+        logging.info('Writing the award info to file.')
+        writer = csv.DictWriter(f, awards[0].keys())
+        writer.writeheader()
+        writer.writerows(awards)
 
     logging.info(f'Program complete. Output located at: {args.output}')
 
